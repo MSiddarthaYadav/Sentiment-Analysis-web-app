@@ -54,7 +54,8 @@ Sentiment-Analysis-NLP/
    ```
 
 3. Open your browser and visit:
-   **[http://127.0.0.1:5000/](http://127.0.0.1:5000/)**
+   ![Sentiment Analysis UI]("C:\Users\M.SIDDARTHA YADAV\OneDrive\Pictures\Screenshots\Screenshot 2025-11-14 155216.png")
+
 
 ---
 
