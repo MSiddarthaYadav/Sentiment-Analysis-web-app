@@ -30,31 +30,10 @@ This project analyzes user-entered text and predicts the sentiment (*Positive, N
 ```
 Sentiment-Analysis-NLP/
 │── app.py
-│── requirements.txt
 │── templates/
 │     └── index.html
 │── static/
 │── README.md
-```
-
----
-
-## 🚀 **How to Run the Project**
-
-1. Install dependencies
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. Start the Flask server
-
-   ```bash
-   python app.py
-   ```
-
-3. Open your browser and visit
-
 
 ---
 
