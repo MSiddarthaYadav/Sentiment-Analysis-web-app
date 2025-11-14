@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIBE CHECK AI </title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #e0f2f7; /* Light Sky Blue */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Hide emojis that go off-screen */
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            z-index: 1; /* Ensure container is above background emojis */
+            text-align: center;
+        }
+        h1 {
+            font-size: 3em;
+            font-weight: 900;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            /* Fancy gradient text */
+            background: linear-gradient(45deg, #007bff, #6f42c1); /* Darker, contrasting gradient */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            /* Add a subtle shadow to make it pop */
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+            position: relative; /* Needed for the ::after pseudo-element */
+            padding-bottom: 15px; /* Add space below the title for the line */
+            display: inline-block; /* Make the H1 wrap its content */
+        }
+        h1::after {
+            content: '';
+            position: absolute;
+            display: block;
+            width: 100%; /* Make the line as wide as the H1 content */
+            height: 4px; /* Thickness of the line */
+            background: linear-gradient(90deg, #007bff, #6f42c1); /* Match the title gradient */
+            border-radius: 2px;
+            /* Centering the line */
+            bottom: 0;
+            left: 0;
+        }
+        p {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border-radius: 10px; /* Slightly more rounded */
+            border: 2px solid #dfe6e9; /* Lighter default border */
+            font-size: 16px;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            background-color: #fdfdfd;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for the glow */
+        }
+        textarea:focus {
+            outline: none; /* Remove the default browser outline */
+            border-color: #3498db; /* A nice blue to match the FAB */
+            /* This box-shadow creates the "spark" or "glow" effect */
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.6);
+        }
+        #result {
+            margin-top: 30px;
+            font-size: 20px;
+            min-height: 50px;
+        }
+        .result-box {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+        }
+        .Positive { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .Negative { background-color: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .Neutral { background-color: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Space between buttons */
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        #analyzeBtn {
+            background-color: #28a745; /* Clear Green */
+            color: white;
+        }
+        #analyzeBtn:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+        #clearBtn {
+            background-color: #dc3545; /* Red for clear/danger action */
+            color: white;
+        }
+        #clearBtn:hover {
+            background-color: #c82333;
+        }
+
+        /* Background Emoji Styles */
+        .emoji {
+            position: absolute;
+            opacity: 0.25; /* A little brighter */
+            user-select: none; /* Prevent text selection */
+            pointer-events: none; /* Prevent clicking */
+            z-index: 0; /* Position behind the main container */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- This div will hold the background emojis -->
+    <div id="emoji-container"></div>
+
+    <div class="container">
+        <h1>VIBE CHECK AI</h1>
+        <p>Enter a movie review, product feedback, or any text to classify its emotional tone.</p>
+        
+        <textarea id="textInput" placeholder="e.g., 'The movie was fantastic, I really enjoyed the acting!'"></textarea>
+        
+        <div class="button-group">
+            <button id="analyzeBtn" class="btn" onclick="analyzeSentiment()">Analyze</button>
+            <button id="clearBtn" class="btn" onclick="clearText()">Clear</button>
+        </div>
+
+        <div id="result">
+            <div id="resultBox" class="result-box">
+                Sentiment: <strong id="sentimentLabel"></strong> 
+                (<span id="confidenceScore"></span>% confidence)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resultBox = document.getElementById('resultBox');
+        const sentimentLabel = document.getElementById('sentimentLabel');
+        const confidenceScore = document.getElementById('confidenceScore');
+
+        function clearText() {
+            textInput.value = '';
+            resultBox.style.display = 'none';
+            textInput.focus();
+        }
+
+        async function analyzeSentiment() {
+            const text = textInput.value;
+            if (!text.trim()) {
+                alert("Please enter some text to analyze.");
+                return;
+            }
+
+            // Disable button and show loading state
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerText = "Analyzing...";
+            resultBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'An unknown error occurred.');
+                }
+
+                const data = await response.json();
+                
+                // Update UI with the result
+                sentimentLabel.innerText = data.sentiment;
+                confidenceScore.innerText = data.confidence;
+                
+                // Apply class for styling and show the result box
+                resultBox.className = `result-box ${data.sentiment}`;
+                resultBox.style.display = 'block';
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+                resultBox.style.display = 'none';
+            } finally {
+                // Re-enable button
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerText = "Analyze";
+            }
+        }
+
+        // --- Script to add random background emojis ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const emojiContainer = document.getElementById('emoji-container');
+            const emojis = ['😊', '👍', '🤔', '🎉', '💡', '❤️', '😂', '✨'];
+            const generalEmojiCount = 20; // More emojis in the center
+            const leftSideEmojiCount = 20;  // More on the left
+            const RightSideEmojiCount = 20;   // More on the right
+            for (let i = 0; i < generalEmojiCount; i++) {
+                const emojiSpan = document.createElement('span');
+                emojiSpan.classList.add('emoji');
+                
+                // Pick a random emoji
+                emojiSpan.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // Randomize position, size, and rotation
+                emojiSpan.style.left = `${Math.random() * 100}vw`;
+                emojiSpan.style.top = `${Math.random() * 100}vh`;
+                const randomSize = Math.random() * 1.5 + 1; // Smaller size range: 1rem to 2.5rem
+                emojiSpan.style.fontSize = `${randomSize}rem`;
+                emojiSpan.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+                emojiContainer.appendChild(emojiSpan);
+            }
+
+            // Add additional emojis concentrated on the left side
+            for (let i = 0; i < leftSideEmojiCount; i++) {
+                const emojiSpan = document.createElement('span');
+                emojiSpan.classList.add('emoji');
+                
+                // Pick a random emoji
+                emojiSpan.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // Randomize position, size, and rotation, but bias 'left' to the first 30% of the screen
+                emojiSpan.style.left = `${Math.random() * 30}vw`; // Concentrated on the left 30%
+                emojiSpan.style.top = `${Math.random() * 100}vh`; // Still full height
+                const randomSize = Math.random() * 1.5 + 1; // Smaller size range: 1rem to 2.5rem
+                emojiSpan.style.fontSize = `${randomSize}rem`;
+                emojiSpan.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+                emojiContainer.appendChild(emojiSpan);
+            }
+
+            // Add additional emojis concentrated on the right side
+            for (let i = 0; i < RightSideEmojiCount; i++) {
+                const emojiSpan = document.createElement('span');
+                emojiSpan.classList.add('emoji');
+                
+                // Pick a random emoji
+                emojiSpan.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // Randomize position, but bias 'left' to the last 30% of the screen
+                emojiSpan.style.left = `${70 + Math.random() * 30}vw`; // Concentrated on the right 30%
+                emojiSpan.style.top = `${Math.random() * 100}vh`; // Still full height
+                const randomSize = Math.random() * 1.5 + 1; // Smaller size range: 1rem to 2.5rem
+                emojiSpan.style.fontSize = `${randomSize}rem`;
+                emojiSpan.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+                emojiContainer.appendChild(emojiSpan);
+            }
+        });
+    </script>
+
+</body>
+</html>
