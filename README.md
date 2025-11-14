@@ -36,7 +36,6 @@ Sentiment-Analysis-NLP/
 │── README.md
 
 ---
-
 ## 📤 **Input**
 
 Users enter any text through the UI.
