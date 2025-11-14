@@ -53,8 +53,7 @@ Sentiment-Analysis-NLP/
    python app.py
    ```
 
-3. Open your browser and visit:
-   ![Sentiment Analysis UI]("C:\Users\M.SIDDARTHA YADAV\OneDrive\Pictures\Screenshots\Screenshot 2025-11-14 155216.png")
+3. Open your browser and visit
 
 
 ---
