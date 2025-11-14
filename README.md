@@ -75,5 +75,4 @@ Feel free to modify, improve, or integrate it into your own applications.
 ---
 
 
-✅ Installation + Setup commands
-Just tell me!
+
